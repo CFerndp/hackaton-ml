@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 
 import tensorflow as tf
+from sklearn.model_selection import train_test_split
 
 # Add data directory to path
 project_root = Path(__file__).parent.parent
@@ -46,6 +47,9 @@ def train():
     X = X_raw.values
     y = df['is_stressed'].values  # binary target variable
     
+    # split the data into train and test sets (70% train, 30% test)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+    
     # define the keras model
     model = tf.keras.models.Sequential([
         tf.keras.layers.Dense(11, input_shape=(11,), activation='relu'),
@@ -57,10 +61,10 @@ def train():
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     
     # train the keras model
-    model.fit(X, y, epochs=150, batch_size=10)
+    model.fit(X_train, y_train, epochs=150, batch_size=10)
         
     # evaluate the keras model
-    _, accuracy = model.evaluate(X, y)
+    _, accuracy = model.evaluate(X_test, y_test)
     print('Accuracy: %.2f' % (accuracy*100))
     
     # serialize model to JSON    
